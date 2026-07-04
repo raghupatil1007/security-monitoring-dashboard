@@ -1,0 +1,8 @@
+*.pem
+*-key.pem
+cloudflared.exe
+database.db
+__pycache__/
+*.pyc
+.env
+config

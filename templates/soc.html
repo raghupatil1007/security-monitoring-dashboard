@@ -1,0 +1,595 @@
+<html>
+<head>
+<title>SOC Analyst Center</title>
+
+<style>
+body{
+margin:0;
+padding:30px;
+font-family:Arial,Helvetica,sans-serif;
+background:#0f172a;
+color:white;
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+flex-wrap:wrap;
+gap:10px;
+}
+
+h1{
+margin:0;
+font-size:32px;
+color:#ef4444;
+}
+
+a{
+color:white;
+text-decoration:none;
+background:#1e293b;
+padding:10px 16px;
+border-radius:8px;
+transition:.3s;
+}
+
+a:hover{
+background:#334155;
+}
+
+/* ── Section tabs ── */
+.sec-tabs{
+display:flex;
+gap:8px;
+margin-bottom:22px;
+flex-wrap:wrap;
+}
+
+.sec-tab{
+padding:10px 20px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+font-weight:bold;
+border:1px solid rgba(255,255,255,0.12);
+background:#1e293b;
+color:#94a3b8;
+transition:.2s;
+}
+
+.sec-tab.active{
+background:#ef4444;
+color:white;
+border-color:#ef4444;
+}
+
+.sec-tab.net-tab.active{
+background:#38bdf8;
+border-color:#38bdf8;
+}
+
+.section{ display:none; }
+.section.active{ display:block; }
+
+/* ── Cards ── */
+.cards{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.card{
+background:#1e293b;
+padding:18px;
+border-radius:10px;
+width:190px;
+}
+
+.card h3{
+margin:0;
+font-size:14px;
+color:#94a3b8;
+}
+
+.card p{
+margin:8px 0 0;
+font-size:24px;
+font-weight:bold;
+color:#ef4444;
+}
+
+.card p.blue{ color:#38bdf8; }
+.card p.green{ color:#22c55e; }
+.card p.amber{ color:#f59e0b; }
+
+/* ── Tables ── */
+.table-box{
+background:#1e293b;
+border-radius:12px;
+overflow:hidden;
+margin-bottom:20px;
+}
+
+.table-box-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:14px 18px;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.table-box-header h3{
+margin:0;
+font-size:15px;
+color:#38bdf8;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#111827;
+padding:14px 16px;
+text-align:left;
+font-size:13px;
+color:#94a3b8;
+text-transform:uppercase;
+letter-spacing:.04em;
+}
+
+td{
+padding:13px 16px;
+border-top:1px solid rgba(255,255,255,0.06);
+font-size:14px;
+}
+
+tr:hover td{
+background:#1a2942;
+}
+
+.critical{ color:#ff4d4d; font-weight:bold; }
+.empty{ text-align:center; padding:25px; color:#94a3b8; }
+.small{ margin-top:15px; color:#94a3b8; font-size:13px; }
+
+/* ── Badges ── */
+.badge{
+display:inline-block;
+padding:3px 10px;
+border-radius:20px;
+font-size:11px;
+font-weight:700;
+}
+
+.badge-ok{ background:rgba(34,197,94,.15); color:#22c55e; }
+.badge-warn{ background:rgba(245,158,11,.15); color:#f59e0b; }
+.badge-bad{ background:rgba(239,68,68,.15); color:#ef4444; }
+
+/* ── Employee list ── */
+.emp-row{
+display:grid;
+grid-template-columns:1fr 1fr 1fr auto;
+gap:8px;
+align-items:center;
+padding:11px 16px;
+border-top:1px solid rgba(255,255,255,0.06);
+font-size:13px;
+}
+
+.emp-row:first-child{ border-top:none; }
+
+.avatar{
+width:28px; height:28px; border-radius:50%;
+background:rgba(56,189,248,.2);
+color:#38bdf8;
+font-size:11px; font-weight:700;
+display:inline-flex; align-items:center; justify-content:center;
+flex-shrink:0;
+}
+
+.name-cell{
+display:flex; align-items:center; gap:8px;
+}
+
+.bar-wrap{
+height:5px; border-radius:3px;
+background:rgba(255,255,255,.08);
+overflow:hidden; flex:1;
+}
+
+.bar-fill{ height:100%; border-radius:3px; background:#38bdf8; transition:width .4s; }
+.bar-fill.warn{ background:#f59e0b; }
+.bar-fill.bad{ background:#ef4444; }
+
+/* ── Net filter tabs ── */
+.net-filter{
+display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;
+}
+
+.nf-btn{
+padding:6px 14px; border-radius:6px; cursor:pointer;
+font-size:12px; font-weight:bold; border:1px solid rgba(255,255,255,.12);
+background:#1e293b; color:#94a3b8;
+}
+
+.nf-btn.active{
+background:#38bdf8; color:#0f172a; border-color:#38bdf8;
+}
+
+/* ── Live dot ── */
+.live-dot{
+width:8px; height:8px; border-radius:50%;
+background:#22c55e; display:inline-block; margin-right:6px;
+animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink{ 0%,100%{opacity:1}50%{opacity:.3} }
+</style>
+</head>
+
+<body>
+
+<div class="top">
+<h1>🚨 SOC Analyst Center</h1>
+<a href="/dashboard">← Back to Dashboard</a>
+</div>
+
+<!-- ── Section switcher ── -->
+<div class="sec-tabs">
+<div class="sec-tab active" onclick="switchSection('brute',this)">🔐 Brute Force Alerts</div>
+<div class="sec-tab net-tab" onclick="switchSection('network',this)">📡 Network Monitor</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     SECTION 1 — BRUTE FORCE (your original code)
+     ════════════════════════════════════════════ -->
+<div id="sec-brute" class="section active">
+
+  <div class="cards">
+    <div class="card">
+      <h3>Total Alerts</h3>
+      <p id="totalAlerts">0</p>
+    </div>
+    <div class="card">
+      <h3>Critical Alerts</h3>
+      <p id="criticalAlerts">0</p>
+    </div>
+    <div class="card">
+      <h3>Live Status</h3>
+      <p id="liveStatus">ON</p>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>Source IP</th>
+          <th>Threat</th>
+          <th>Attempts</th>
+          <th>Last Seen</th>
+        </tr>
+      </thead>
+      <tbody id="alerts">
+        <tr><td colspan="5" class="empty">Loading alerts...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="small">
+    Live monitoring • Auto refresh every 3 sec • Brute force detection active
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     SECTION 2 — NETWORK ACTIVITY MONITOR
+     ════════════════════════════════════════════ -->
+<div id="sec-network" class="section">
+
+  <!-- stat cards -->
+  <div class="cards">
+    <div class="card">
+      <h3>Total Requests</h3>
+      <p class="blue" id="nm-total">0</p>
+    </div>
+    <div class="card">
+      <h3>Flagged</h3>
+      <p class="amber" id="nm-flagged">0</p>
+    </div>
+    <div class="card">
+      <h3>Employees Online</h3>
+      <p class="green" id="nm-emp">0</p>
+    </div>
+    <div class="card">
+      <h3>Policy Alerts</h3>
+      <p id="nm-alerts">0</p>
+    </div>
+  </div>
+
+  <!-- filter tabs -->
+  <div class="net-filter">
+    <div class="nf-btn active" onclick="setNetTab('live',this)">Live Feed</div>
+    <div class="nf-btn" onclick="setNetTab('employees',this)">Employees</div>
+    <div class="nf-btn" onclick="setNetTab('policy',this)">Policy Alerts</div>
+  </div>
+
+  <!-- LIVE FEED -->
+  <div id="nm-live">
+    <div class="table-box">
+      <div class="table-box-header">
+        <h3><span class="live-dot"></span>Live Network Requests</h3>
+        <span style="font-size:12px;color:#94a3b8;" id="nm-feed-count">0 entries</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Employee</th><th>Domain</th><th>Status</th></tr>
+        </thead>
+        <tbody id="nm-feed-body">
+          <tr><td colspan="4" class="empty">Waiting for data from router…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EMPLOYEES -->
+  <div id="nm-employees" style="display:none;">
+    <div class="table-box">
+      <div class="table-box-header">
+        <h3>Employee Activity</h3>
+        <span style="font-size:12px;color:#94a3b8;">sorted by risk</span>
+      </div>
+      <div id="nm-emp-list">
+        <div class="empty">No activity yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POLICY ALERTS -->
+  <div id="nm-policy" style="display:none;">
+    <div class="table-box">
+      <div class="table-box-header">
+        <h3>Policy Violations</h3>
+        <span style="font-size:12px;color:#94a3b8;" id="nm-alert-count">0 alerts</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Employee</th><th>Domain</th><th>Type</th></tr>
+        </thead>
+        <tbody id="nm-alert-body">
+          <tr><td colspan="4" class="empty">No violations yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="small">
+    Auto refresh every 5 sec • Reads from <code>/api/soc/live</code> &amp; <code>/api/soc/employees</code>
+  </div>
+
+</div>
+
+
+<script>
+
+/* ══════════════════════════════════
+   SECTION SWITCHING
+══════════════════════════════════ */
+function switchSection(name, el){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".sec-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("sec-"+name).classList.add("active");
+  el.classList.add("active");
+}
+
+/* ══════════════════════════════════
+   SECTION 1 — BRUTE FORCE (unchanged)
+══════════════════════════════════ */
+async function loadAlerts(){
+  try{
+    let res  = await fetch("/api/soc-live");
+    let data = await res.json();
+    let html = "";
+    document.getElementById("totalAlerts").innerText    = data.length;
+    document.getElementById("criticalAlerts").innerText = data.length;
+    if(data.length === 0){
+      html = `<tr><td colspan="5" class="empty">No brute force activity detected</td></tr>`;
+    }else{
+      data.forEach(a=>{
+        html += `<tr>
+          <td class="critical">${a.severity}</td>
+          <td>${a.ip}</td>
+          <td>${a.threat}</td>
+          <td>${a.attempts}</td>
+          <td>${a.last_seen}</td>
+        </tr>`;
+      });
+    }
+    document.getElementById("alerts").innerHTML = html;
+  }catch(e){
+    document.getElementById("alerts").innerHTML =
+      `<tr><td colspan="5" class="empty">Unable to load alerts</td></tr>`;
+  }
+}
+
+setInterval(loadAlerts, 3000);
+loadAlerts();
+
+
+/* ══════════════════════════════════
+   SECTION 2 — NETWORK MONITOR
+══════════════════════════════════ */
+
+// ── CONFIG: map your office IPs → employee names ──
+const IP_TO_EMP = {
+  "192.168.1.101": "Rahul Sharma",
+  "192.168.1.102": "Priya Patel",
+  "192.168.1.103": "Amit Singh",
+  "192.168.1.104": "Sneha Kulkarni",
+  "192.168.1.105": "Vikram Joshi",
+};
+
+// Unproductive & suspicious domain lists
+const UNPRODUCTIVE = new Set([
+  "youtube.com","instagram.com","facebook.com","twitter.com","x.com",
+  "tiktok.com","reddit.com","netflix.com","hotstar.com","twitch.tv",
+  "snapchat.com","whatsapp.com"
+]);
+const SUSPICIOUS_KEYWORDS = ["torrent","pirate","crack","keygen","proxy","vpngate"];
+
+function classify(domain){
+  if(!domain) return "normal";
+  if(UNPRODUCTIVE.has(domain)) return "unproductive";
+  if(SUSPICIOUS_KEYWORDS.some(k=>domain.includes(k))) return "suspicious";
+  return "normal";
+}
+
+function initials(name){
+  return name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+}
+
+let nmFeed = [], nmEmpStats = {}, nmAlerts = [];
+let currentNetTab = "live";
+
+// ── Fetch from your Flask backend (network_monitor.py blueprint) ──
+async function loadNetworkData(){
+  try{
+    const [liveRes, empRes] = await Promise.all([
+      fetch("/api/soc/live"),
+      fetch("/api/soc/employees")
+    ]);
+
+    if(liveRes.ok){
+      const liveData = await liveRes.json();
+      // Merge with local store — add only new entries
+      liveData.forEach(entry=>{
+        const exists = nmFeed.some(e=>e.time===entry.time && e.domain===entry.domain && e.employee===entry.employee);
+        if(!exists) nmFeed.unshift({
+          time:     entry.time,
+          ip:       entry.ip,
+          emp:      entry.employee || IP_TO_EMP[entry.ip] || entry.ip,
+          domain:   entry.domain,
+          flag:     entry.flag || classify(entry.domain)
+        });
+      });
+      if(nmFeed.length > 200) nmFeed = nmFeed.slice(0,200);
+    }
+
+    if(empRes.ok){
+      const empData = await empRes.json();
+      nmEmpStats = {};
+      empData.forEach(e=>{
+        nmEmpStats[e.name] = {
+          total:   e.total_visits,
+          alerts:  e.alerts || [],
+          domains: e.top_domains || []
+        };
+        e.alerts.forEach(a=>{
+          const exists = nmAlerts.some(x=>x.time===a.time && x.domain===a.domain && x.emp===e.name);
+          if(!exists) nmAlerts.unshift({time:a.time, emp:e.name, domain:a.domain, type:a.type});
+        });
+      });
+      if(nmAlerts.length > 200) nmAlerts = nmAlerts.slice(0,200);
+    }
+
+  }catch(err){
+    // API not connected yet — silently wait
+  }
+  renderNetwork();
+}
+
+function renderNetwork(){
+  const flagged = nmFeed.filter(e=>e.flag!=="normal").length;
+  const empCount = Object.keys(nmEmpStats).length;
+  document.getElementById("nm-total").textContent   = nmFeed.length;
+  document.getElementById("nm-flagged").textContent = flagged;
+  document.getElementById("nm-emp").textContent     = empCount;
+  document.getElementById("nm-alerts").textContent  = nmAlerts.length;
+  document.getElementById("nm-feed-count").textContent  = nmFeed.length+" entries";
+  document.getElementById("nm-alert-count").textContent = nmAlerts.length+" alerts";
+
+  // Live feed
+  const lb = document.getElementById("nm-feed-body");
+  if(!nmFeed.length){
+    lb.innerHTML = `<tr><td colspan="4" class="empty">Waiting for router data… (check setup below)</td></tr>`;
+  }else{
+    lb.innerHTML = nmFeed.slice(0,30).map(e=>{
+      const cls = e.flag==="unproductive"?"badge-warn":e.flag==="suspicious"?"badge-bad":"badge-ok";
+      const lbl = e.flag==="unproductive"?"Unproductive":e.flag==="suspicious"?"Suspicious":"OK";
+      return `<tr>
+        <td style="font-family:monospace;font-size:12px;color:#94a3b8">${e.time}</td>
+        <td>${e.emp}</td>
+        <td style="font-weight:bold">${e.domain||"—"}</td>
+        <td><span class="badge ${cls}">${lbl}</span></td>
+      </tr>`;
+    }).join("");
+  }
+
+  // Employees
+  const el = document.getElementById("nm-emp-list");
+  const empArr = Object.entries(nmEmpStats).sort((a,b)=>b[1].alerts.length-a[1].alerts.length);
+  const maxReq = Math.max(...empArr.map(e=>e[1].total),1);
+  if(!empArr.length){
+    el.innerHTML = `<div class="empty">No employee activity yet</div>`;
+  }else{
+    el.innerHTML = empArr.map(([name,s])=>{
+      const pct  = Math.round(s.total/maxReq*100);
+      const risk = s.alerts.length;
+      const bCls = risk>5?"bad":risk>2?"warn":"";
+      const aCls = risk>5?"badge-bad":risk>2?"badge-warn":"badge-ok";
+      const topD = s.domains.slice(0,3).map(d=>d.domain||d).join(", ");
+      return `<div class="emp-row">
+        <div class="name-cell">
+          <div class="avatar">${initials(name)}</div>
+          <span style="font-weight:bold">${name}</span>
+        </div>
+        <div>
+          <div class="bar-wrap"><div class="bar-fill ${bCls}" style="width:${pct}%"></div></div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:3px">${s.total} requests</div>
+        </div>
+        <div style="font-size:12px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${topD||"—"}</div>
+        <span class="badge ${aCls}">${risk} alert${risk!==1?"s":""}</span>
+      </div>`;
+    }).join("");
+  }
+
+  // Policy alerts
+  const ab = document.getElementById("nm-alert-body");
+  if(!nmAlerts.length){
+    ab.innerHTML = `<tr><td colspan="4" class="empty">No violations yet</td></tr>`;
+  }else{
+    ab.innerHTML = nmAlerts.slice(0,30).map(a=>{
+      const cls = a.type==="suspicious"?"badge-bad":"badge-warn";
+      return `<tr>
+        <td style="font-family:monospace;font-size:12px;color:#94a3b8">${a.time}</td>
+        <td>${a.emp}</td>
+        <td style="font-weight:bold">${a.domain}</td>
+        <td><span class="badge ${cls}">${a.type}</span></td>
+      </tr>`;
+    }).join("");
+  }
+}
+
+function setNetTab(tab, el){
+  currentNetTab = tab;
+  document.querySelectorAll(".nf-btn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("nm-live").style.display      = tab==="live"?"block":"none";
+  document.getElementById("nm-employees").style.display = tab==="employees"?"block":"none";
+  document.getElementById("nm-policy").style.display    = tab==="policy"?"block":"none";
+}
+
+setInterval(loadNetworkData, 5000);
+loadNetworkData();
+
+</script>
+
+</body>
+</html>

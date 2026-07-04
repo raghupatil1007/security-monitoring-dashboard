@@ -1,0 +1,281 @@
+<html>
+<head>
+<title>Admin Login</title>
+
+<style>
+body{
+margin:0;
+background:#0f172a;
+font-family:Arial, sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:35px;
+border-radius:12px;
+width:340px;
+box-shadow:0 0 20px rgba(0,0,0,0.25);
+}
+
+h2{
+text-align:center;
+margin-top:0;
+margin-bottom:8px;
+color:#0f172a;
+}
+
+.sub{
+text-align:center;
+font-size:13px;
+color:#64748b;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+box-sizing:border-box;
+outline:none;
+transition:0.2s;
+}
+
+input:focus{
+border-color:#38bdf8;
+box-shadow:0 0 0 3px rgba(56,189,248,0.15);
+}
+
+button{
+width:100%;
+padding:12px;
+background:#38bdf8;
+border:none;
+color:white;
+font-size:16px;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+transition:0.2s;
+}
+
+button:hover{
+background:#0ea5e9;
+}
+
+button:disabled{
+background:#94a3b8;
+cursor:not-allowed;
+}
+
+.error{
+background:#fee2e2;
+color:#dc2626;
+padding:12px;
+border-radius:8px;
+margin-bottom:15px;
+text-align:center;
+font-size:14px;
+font-weight:bold;
+}
+
+.lock{
+background:#fff7ed;
+color:#ea580c;
+padding:12px;
+border-radius:8px;
+margin-bottom:15px;
+text-align:center;
+font-size:14px;
+font-weight:bold;
+}
+
+.footer{
+margin-top:18px;
+font-size:12px;
+text-align:center;
+color:#94a3b8;
+}
+
+.shake{
+animation:shakeBox 0.5s;
+}
+
+@keyframes shakeBox{
+0%{transform:translateX(0);}
+10%{transform:translateX(-12px);}
+20%{transform:translateX(12px);}
+30%{transform:translateX(-12px);}
+40%{transform:translateX(12px);}
+50%{transform:translateX(-10px);}
+60%{transform:translateX(10px);}
+70%{transform:translateX(-8px);}
+80%{transform:translateX(8px);}
+90%{transform:translateX(-5px);}
+100%{transform:translateX(0);}
+}
+
+/* Attempt Dots */
+.attempts-wrap{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:8px;
+margin-bottom:14px;
+}
+
+.attempts-label{
+font-size:13px;
+color:#dc2626;
+font-weight:bold;
+}
+
+.dots{
+display:flex;
+gap:10px;
+}
+
+.dot{
+width:14px;
+height:14px;
+border-radius:50%;
+background:#e2e8f0;
+transition:background 0.3s;
+}
+
+.dot.filled{
+background:#dc2626;
+box-shadow:0 0 6px rgba(220,38,38,0.5);
+}
+
+/* Countdown Box */
+.countdown-box{
+background:#fff7ed;
+border:1px solid #fdba74;
+border-radius:8px;
+padding:14px;
+text-align:center;
+margin-bottom:15px;
+}
+
+.countdown-box p{
+margin:0;
+font-size:13px;
+color:#ea580c;
+font-weight:bold;
+}
+
+.countdown-number{
+font-size:2em;
+font-weight:bold;
+color:#dc2626;
+display:block;
+margin-top:4px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box {% if error %}shake{% endif %}">
+<h2>Admin Login</h2>
+<div class="sub">Secure Monitoring Panel</div>
+
+{% if attempts is defined and attempts >= 1 and attempts < 3 %}
+<div class="attempts-wrap">
+    <div class="dots">
+        <div class="dot {% if attempts >= 1 %}filled{% endif %}"></div>
+        <div class="dot {% if attempts >= 2 %}filled{% endif %}"></div>
+        <div class="dot"></div>
+    </div>
+    <div class="attempts-label">
+        {% if attempts == 1 %}One of three attempts used{% endif %}
+        {% if attempts == 2 %}Two of three attempts used{% endif %}
+    </div>
+</div>
+{% endif %}
+
+
+{% if error and ('Too many' in error or 'Locked' in error) %}
+<div class="countdown-box" id="countdownBox">
+    <p>⛔ Too Many Attempts!</p>
+    <p>Please wait</p>
+    <span class="countdown-number" id="countNum">--</span>
+    <p style="font-size:12px; margin-top:4px;">seconds before trying again</p>
+</div>
+{% endif %}
+
+<form method="post" id="loginForm">
+<input type="text" name="username" id="username" placeholder="Username" required autocomplete="off">
+<input type="password" name="password" id="password" placeholder="Password" required autocomplete="off">
+<button type="submit" id="loginBtn">Login</button>
+</form>
+
+<div class="footer">
+Authorized Access Only
+</div>
+
+</div>
+
+<script>
+var serverError = "{{ error | default('') }}";
+
+window.onload = function(){
+    var isLocked = serverError.indexOf("Too many") !== -1 || serverError.indexOf("Locked") !== -1;
+
+    if(isLocked){
+        var match = serverError.match(/(\d+)\s*sec/);
+        var seconds = match ? parseInt(match[1]) : 30;
+        disableInputs();
+        startCountdown(seconds);
+    }
+};
+
+function startCountdown(seconds){
+    var num = document.getElementById("countNum");
+    var box = document.getElementById("countdownBox");
+    if(!num) return;
+
+    num.textContent = seconds;
+
+    var timer = setInterval(function(){
+        seconds--;
+        num.textContent = seconds;
+
+        if(seconds <= 0){
+            clearInterval(timer);
+            enableInputs();
+            if(box){
+                box.innerHTML = "<p style='color:#16a34a; font-weight:bold;'>✅ You can try again now!</p>";
+                setTimeout(function(){ box.style.display = "none"; }, 2000);
+            }
+        }
+    }, 1000);
+}
+
+function disableInputs(){
+    document.getElementById("username").disabled = true;
+    document.getElementById("password").disabled = true;
+    document.getElementById("loginBtn").disabled = true;
+}
+
+function enableInputs(){
+    document.getElementById("username").disabled = false;
+    document.getElementById("password").disabled = false;
+    document.getElementById("loginBtn").disabled = false;
+}
+
+document.getElementById("loginForm").addEventListener("submit", function(){
+    document.getElementById("loginBtn").innerHTML = "Checking...";
+});
+</script>
+
+</body>
+</html>
